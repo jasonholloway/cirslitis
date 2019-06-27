@@ -1,0 +1,36 @@
+kernel:
+  image: linuxkit/kernel:4.19.49
+  cmdline: "console=tty0 console=ttyS0 console=ttyAMA0 console=ttysclp0"
+init:
+  - linuxkit/init:v0.7
+  - linuxkit/runc:c1f0db27e71d948f3134b31ce76276f843849b0a
+  - linuxkit/containerd:v0.7
+onboot:
+  - name: dhcpcd
+    image: linuxkit/dhcpcd:v0.7
+    command: ["/sbin/dhcpcd", "--nobackground", "-f", "/dhcpcd.conf", "-1"]
+services:
+  - name: getty
+    image: linuxkit/getty:v0.7
+    env:
+     - INSECURE=true
+  - name: haproxy
+    image: haproxy:2.0-alpine
+    capabilities:
+     - CAP_NET_BIND_SERVICE
+     - CAP_CHOWN
+     - CAP_SETUID
+     - CAP_SETGID
+     - CAP_DAC_OVERRIDE
+    net: host
+    binds:
+     - /usr/local/etc/haproxy:/usr/local/etc/haproxy
+files:
+  - path: usr/local/etc/haproxy/haproxy.cfg
+    source: haproxy.cfg
+    mode: "0600"
+    optional: false
+trust:
+  org:
+    - linuxkit
+    - library
