@@ -10,10 +10,6 @@ onboot:
     image: linuxkit/dhcpcd:v0.7
     command: ["/sbin/dhcpcd", "--nobackground", "-f", "/dhcpcd.conf", "-1"]
 services:
-  - name: getty
-    image: linuxkit/getty:v0.7
-    env:
-     - INSECURE=true
   - name: haproxy
     image: haproxy:2.0-alpine
     capabilities:
@@ -29,8 +25,6 @@ files:
   - path: usr/local/etc/haproxy/haproxy.cfg
     source: haproxy.cfg
     mode: "0600"
-    optional: false
 trust:
   org:
     - linuxkit
-    - library
