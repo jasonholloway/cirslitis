@@ -1,4 +1,5 @@
 *state
 build
+out
 .env
 *privatekey
