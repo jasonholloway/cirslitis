@@ -5,11 +5,24 @@ init:
   - linuxkit/init:v0.7
   - linuxkit/runc:c1f0db27e71d948f3134b31ce76276f843849b0a
   - linuxkit/containerd:v0.7
+  - linuxkit/ca-certificates:v0.7
 onboot:
+  - name: sysctl
+    image: linuxkit/sysctl:v0.7
   - name: dhcpcd
     image: linuxkit/dhcpcd:v0.7
     command: ["/sbin/dhcpcd", "--nobackground", "-f", "/dhcpcd.conf", "-1"]
 services:
+  - name: getty
+    image: linuxkit/getty:v0.7
+    env:
+     - INSECURE=true
+  - name: rngd
+    image: linuxkit/rngd:02c555b50cd1887aa628836662d2eec54c0d7e81
+  - name: dhcpcd
+    image: linuxkit/dhcpcd:v0.7
+  - name: sshd
+    image: linuxkit/sshd:v0.7
   - name: haproxy
     image: haproxy:2.0-alpine
     capabilities:
@@ -24,6 +37,9 @@ services:
 files:
   - path: usr/local/etc/haproxy/haproxy.cfg
     source: haproxy.cfg
+    mode: "0600"
+  - path: root/.ssh/authorized_keys
+    source: ~/.ssh/id_rsa.pub
     mode: "0600"
 trust:
   org:

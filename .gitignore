@@ -3,3 +3,5 @@ build
 out
 .env
 *privatekey
+.terraform
+*backup

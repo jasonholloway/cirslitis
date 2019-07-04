@@ -26,18 +26,19 @@ build() {
 	(envsubst < src/haproxy.cfg) > build/haproxy.cfg
 
 	(cd build;
-		linuxkit build -format raw-efi $name.yml;
+		linuxkit build -format qcow2-bios $name.yml;
 		qemu-img convert \
-						-f raw \
 						-O vpc -o subformat=fixed,force_size \
-						$name-efi.img \
+						$name.qcow2 \
 						$name.vhd)
+
+					#	-f qcow2 \
 }
 
 copyOutput() {
 	mkdir -p out
 	mv build/$name.vhd out/$name-$commit.vhd
-	clean
+#	clean
 }
 
 main
