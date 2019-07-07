@@ -5,3 +5,7 @@ out
 *privatekey
 .terraform
 *backup
+*img
+*vhd
+*kernel
+*cmdline
