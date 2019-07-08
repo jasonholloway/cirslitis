@@ -1,17 +1,17 @@
 
-variable "image_name" {
+variable "name" {
 	type = "string"
 }
 
-variable "resource_group" {
+variable "rg" {
 	default = "cirslis"
 }
 
-variable "location" {
+variable "loc" {
 	default = "northeurope"
 }
 
-variable "storage_account" {
+variable "storage" {
 	default = "cirslisdata"
 }
 
@@ -31,37 +31,37 @@ provider "azurerm" {
 
 
 resource "azurerm_storage_blob" "vhd" {
-  name = "${var.image_name}"
-	source = "${path.module}/out/${var.image_name}"
+  name = "${var.name}.vhd"
+	source = "${path.module}/out/${var.name}.vhd"
   type = "page"
 
   storage_container_name = "vhds"
-  resource_group_name    = "${var.resource_group}"
-  storage_account_name   = "${var.storage_account}"
+  resource_group_name    = "${var.rg}"
+  storage_account_name   = "${var.storage}"
 }
 
 
 
 resource "azurerm_virtual_machine" "vm" {
-  name                  = "cirslitis-vm"
-  resource_group_name   = "${var.resource_group}"
-	location = "${var.location}"
+  name                  = "${var.name}-vm"
+  resource_group_name   = "${var.rg}"
+	location = "${var.loc}"
 
   network_interface_ids = ["${azurerm_network_interface.nic.id}"]
   vm_size               = "Standard_B1ls"
 
   storage_os_disk {
     name = "osdisk"
-		os_type = "Linux"
+    create_option = "attach"
+		os_type = "linux"
 		vhd_uri = "${azurerm_storage_blob.vhd.url}"
-    create_option = "Attach"
   }
 }
 
 resource "azurerm_network_interface" "nic" {
-  name                = "cirslitis-nic"
-  resource_group_name = "${var.resource_group}"
-	location = "${var.location}"
+  name                = "${var.name}-nic"
+  resource_group_name = "${var.rg}"
+	location = "${var.loc}"
 
 	network_security_group_id = "${azurerm_network_security_group.nsg.id}"
 
@@ -69,14 +69,14 @@ resource "azurerm_network_interface" "nic" {
     name                          = "ip1"
     subnet_id                     = "${var.subnet}"
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = "${var.public_ip}"
+    # public_ip_address_id          = "${var.public_ip}"
   }
 }
 
 resource "azurerm_network_security_group" "nsg" {
-    name                = "cirslitis-nsg"
-    resource_group_name = "${var.resource_group}"
-    location            = "${var.location}"
+    name                = "${var.name}-nsg"
+    resource_group_name = "${var.rg}"
+    location            = "${var.loc}"
     
     security_rule {
         name                       = "fortinet"
@@ -86,18 +86,6 @@ resource "azurerm_network_security_group" "nsg" {
         protocol                   = "Tcp"
         source_port_range          = "*"
         destination_port_range     = "443"
-        source_address_prefix      = "*"
-        destination_address_prefix = "*"
-    }
-
-    security_rule {
-        name                       = "ssh"
-        priority                   = 1002
-        direction                  = "Inbound"
-        access                     = "Allow"
-        protocol                   = "Tcp"
-        source_port_range          = "*"
-        destination_port_range     = "22"
         source_address_prefix      = "*"
         destination_address_prefix = "*"
     }

@@ -25,4 +25,3 @@ COPY ./src .
 COPY .env .
 COPY buildImage.sh .
 
-CMD [ "./buildImage.sh" ]

@@ -2,17 +2,12 @@
 
 set -e
 
-name=cirslitis
+name="$1"
 
 main() {
-	loadEnv
 	prepFile haproxy.cfg
 	buildVhd
 	pipeOut
-}
-
-loadEnv() {
-	[ -f .env ] && . .env;
 }
 
 prepFile() {
